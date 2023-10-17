@@ -28,6 +28,45 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
     try :
         session = csd()
         print(session)
+        my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
+        # await requests.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/', headers=my_headers)
+        req = requests.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/', headers=my_headers)
+        response_data = req.json()
+        print(response_data)
+        # print(response_data.json())
+        # print(type(response_data.json()))
+        x = {"data-1":str(session),"testing":f"done{post_id}"} 
+        x.update(response_data)
+        print(x)
+        session.shutdown()
+
+
+        # my_dict = {
+        #     "name": "Bard",
+        #     "age": 1,
+        #     "hobbies": ["coding", "reading", "playing games"],
+        #     "address": {
+        #         "street": "123 Main Street",
+        #         "city": "San Francisco",
+        #         "state": "CA",
+        #         "zip": "94105"
+        #     }
+        # }
+
+        # json_string = json.dumps(my_dict)
+
+        # print(json_string)
+
+        # import aiohttp
+
+        # async def main():
+        #     async with aiohttp.ClientSession() as session:
+        #         async with session.get('https://example.com/') as response:
+        #             response_data = await response.json()
+        #             print(response_data)
+
+        # if __name__ == '__main__':
+        #     asyncio.run(main())
         # x = (
         #     schema.comments(
         #     id=str(i[0]),
@@ -44,7 +83,7 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
     
-    return {"data":str(session),"testing":f"done{post_id}"} 
+    return x
 
 @router.post("/{post_id}/add/")
 async def test(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):

@@ -7,3 +7,5 @@
 .postgres_users_service_data/*
 dasdasd/*
 users_service/data/*
+docker-compose.yaml
+.cassandraWorkbench.jsonc
