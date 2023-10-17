@@ -1,0 +1,1 @@
+{"id":"UQ7DxHbzq53GkPly","clusterName":"Cluster comment","keyspace":null,"body":"-- select * from system_schema.keyspaces; \n\nSELECT * FROM system.local;\n\n","modified":true,"filename":"script_2.cql","source":"action"}

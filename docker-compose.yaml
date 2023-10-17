@@ -1,0 +1,79 @@
+version: '3.9'
+
+services:
+
+  cassandra:
+    image: cassandra:latest
+    hostname: cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - .cassandra_comments_services_data/data:/var/lib/cassandra
+    environment:
+      - USERNAME=rioverrain
+      - PASSWORD=rioverr@in22
+
+  users_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: rioverr@in22
+    ports:
+      - "5432:5432"
+    volumes:
+      - .postgres_users_service_data/postgres_data:/var/lib/postgresql/data
+
+  users_services :
+    image: rioverrain/users_services:latest
+    ports:
+      - "7777:7777"
+    depends_on:
+      - users_db  
+
+  comments_services:
+    image: rioverrain/comments_services:latest
+    ports:
+      - "7778:7778"
+    depends_on:
+      - cassandra
+
+  cassandra_posts:
+    image: cassandra:latest
+    hostname: cassandra_posts
+    ports:
+      - "9043:9043"
+    volumes:
+      - .cassandra_posts_services_data/data:/var/lib/cassandra
+    environment:
+      - USERNAME=rioverrain
+      - PASSWORD=rioverr@in22
+  posts_services:
+    image: rioverrain/posts_services:latest
+    ports:
+      - "7779:7779"
+    depends_on:
+      - cassandra_posts
+         
+
+    # volumes:
+    #   - ./postgres-data:/var/lib/postgresql/data
+
+# seed_provider:
+#   - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+#     parameters:
+#          - seeds:  "10.168.66.41,10.176.170.59"
+# listen_address:
+# endpoint_snitch: GossipingPropertyFileSnitch
+  
+
+#   version: "3.7"
+
+# services:
+#   cassandra:
+#     image: cassandra:latest
+#     environment:
+#       - CASSANDRA_SEEDS=10.168.66.41,10.176.170.59
+#       - CASSANDRA_LISTEN_ADDRESS=192.168.1.100
+#       - CASSANDRA_ENDPOINT_SNITCH=RackAwareSnitch
+#     ports:
+#       - "9042:9042"

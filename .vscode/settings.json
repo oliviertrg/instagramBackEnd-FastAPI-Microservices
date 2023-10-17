@@ -1,0 +1,21 @@
+{
+    "cassandraWorkbench.activeClusterName": "Cluster comment",
+    "cassandraWorkbench.activeKeyspace": [
+        [
+            "Cluster AllowAllAuthenticator",
+            null
+        ],
+        [
+            "Cluster PasswordAuthenticator",
+            null
+        ],
+        [
+            "Cluster comment",
+            null
+        ],
+        [
+            "Test Cluster",
+            null
+        ]
+    ]
+}

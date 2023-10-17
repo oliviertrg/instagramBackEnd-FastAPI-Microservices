@@ -1,0 +1,27 @@
+[
+    // AllowAllAuthenticator
+    // {
+    //     "name": "Cluster AllowAllAuthenticator",
+    //     "contactPoints": ["127.0.0.1"]
+    // },
+    //PasswordAuthenticator
+    {
+        "name": "Cluster comment",
+        "contactPoints": ["127.0.0.1:9042"],
+        "authProvider": {
+            "class": "PasswordAuthenticator",
+            "username": "rioverrain",
+            "password": "rioverr@in22"
+        }
+    },
+    {
+        "name": "posts_cluster",
+        "contactPoints": ["127.0.0.1:9042"],
+        "hosts": ["172.18.0.3:9042"], 
+        "authProvider": {
+            "class": "PasswordAuthenticator",
+            "username": "rioverrain",
+            "password": "rioverr@in22"
+        }
+    }
+]
