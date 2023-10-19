@@ -7,7 +7,7 @@ from app.config import csd
 import uuid
 import random
 import string
-
+import aiohttp
 
 
 
@@ -26,21 +26,53 @@ router = APIRouter (
 @router.get("/{post_id}/views/")
 async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
     try :
-        session = csd()
-        print(session)
+        session = await csd()
+        # print(session)
         my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
+
+        async with aiohttp.ClientSession() as sessionn:
+          async with sessionn.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',
+                                 headers=my_headers) as response:
+            response_data = await response.json()
+            # print(response_data)
+        # async with aiohttp.ClientSession() as session:
+        #     async with session.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',
+        #                             headers=my_headers) as response: 
         # await requests.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/', headers=my_headers)
-        req = requests.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/', headers=my_headers)
-        response_data = req.json()
-        print(response_data)
+        # req = await aiohttp.request("GET",f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/', headers = my_headers)
+        # sessionn = aiohttp.ClientSession() 
+        # response =  sessionn.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',headers=my_headers) 
+        # response_data = await response
+        # print(response_data)
+        # print(type(response_data))
+        # print(response_data.json())
+        # json_string = response_data.json()
+        # json_data = json.loads(json_string)
+        # print(json_data)
+    #     json_string = await response.json()
+    # json_data = json.loads(json_string)
+    # return json_data
+
         # print(response_data.json())
         # print(type(response_data.json()))
         x = {"data-1":str(session),"testing":f"done{post_id}"} 
         x.update(response_data)
-        print(x)
+        # print(x)
         session.shutdown()
 
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.get('http://python.org') as response:
 
+    #         print("Status:", response.status)
+    #         print("Content-type:", response.headers['content-type'])
+
+    #         html = await response.text()
+    #         print("Body:", html[:15], "...")
+  
+# async def fetch(url):
+#     aiohttp.request.
+#     response = await aiohttp.request("GET", url)
+#     return response
         # my_dict = {
         #     "name": "Bard",
         #     "age": 1,

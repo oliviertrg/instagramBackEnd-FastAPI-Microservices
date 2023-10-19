@@ -4,7 +4,7 @@ from datetime import datetime
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 
-def csd():
+async def csd():
  try :
     
     auth_provider = PlainTextAuthProvider(username='rioverrain', password='rioverr@in22')

@@ -10,7 +10,6 @@ class users(BaseModel):
     is_actice : bool = True
 
 
-
 class login(BaseModel):
     email : EmailStr
     password : str

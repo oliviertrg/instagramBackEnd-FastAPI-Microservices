@@ -3,7 +3,7 @@ from app.config import curso
 from app.utils import hashpass
 from app.schema import update_users,users
 from app import auth2
-
+import json
 
 router = APIRouter (
          prefix = "/users" ,
@@ -21,23 +21,28 @@ def register(new_user : users):
   c.execute(sql)
   check = c.fetchall()
   if len(check) != 0 :
+          j =  {"detail":"look like someone already used it usersname ,please try difference usersname"}
+          # Decode the JSON string into a Python object
+          JSON_string = json.dumps(j)
           return Response(status_code=status.HTTP_403_FORBIDDEN,
-                          content=f" look like someone already used it usersname ,please try difference usersname")
+                          content=JSON_string)
                         
   else:      
     new_pass = hashpass(new_user.password)
     new_user.password = new_pass
     x = (new_user.username,new_user.email,new_user.password,new_user.is_actice)
     sql = (""" insert into users(usersname,email,passwords,is_active) 
-                values (%s,%s,%s,%s) ; """)
+                values (%s,%s,%s,%s) RETURNING user_id ;""")
     c.execute(sql,x)
+    x = c.fetchall() 
     db.commit()
     db.close()
  except Exception as e:
      print(f"Error {e}")
      raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Not authorized to perform requested action")
- return {"username":new_user.username,
+ return { "user_id":x[0][0],
+          "username":new_user.username,
           "email":new_user.email }
 @router.put('/update/{id}',response_model = update_users)
 def update_user(id : int,new_update_user : update_users,current_user : int = Depends(auth2.get_current_user)): 
