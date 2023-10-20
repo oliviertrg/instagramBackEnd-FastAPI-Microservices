@@ -47,12 +47,20 @@ services:
     environment:
       - USERNAME=rioverrain
       - PASSWORD=rioverr@in22
+
   posts_services:
     image: rioverrain/posts_services:latest
     ports:
       - "7779:7779"
     depends_on:
       - cassandra_posts
+
+
+  feeds_services:
+    image: rioverrain/feeds_services:latest
+    ports:
+      - "7780:7780"
+  
          
 
     # volumes:
