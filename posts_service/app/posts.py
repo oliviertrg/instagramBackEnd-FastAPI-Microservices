@@ -1,4 +1,4 @@
-from fastapi import FastAPI ,Response,status ,HTTPException,APIRouter,Depends, Request
+from fastapi import FastAPI ,Response,status ,HTTPException,APIRouter,Depends, Request,BackgroundTasks
 from app import auth2,schema
 import requests
 import json
@@ -8,8 +8,7 @@ import uuid
 import random
 import string
 import aiohttp
-
-
+import asyncio
 
 # ORDER_KAFKA_TOPIC = "transactions_details"
 
@@ -22,11 +21,10 @@ router = APIRouter (
     tags = ["posts"]
 )
 
-
 @router.get("/{post_id}/views/")
 async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
     try :
-        session = await csd()
+        session = csd()
         # print(session)
         my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
 
@@ -49,9 +47,9 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
         # json_string = response_data.json()
         # json_data = json.loads(json_string)
         # print(json_data)
-    #     json_string = await response.json()
-    # json_data = json.loads(json_string)
-    # return json_data
+        #     json_string = await response.json()
+        # json_data = json.loads(json_string)
+        # return json_data
 
         # print(response_data.json())
         # print(type(response_data.json()))
