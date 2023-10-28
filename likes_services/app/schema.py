@@ -27,13 +27,9 @@ class token(BaseModel) :
 #     username : str
 #     email : str
 #     is_staff : bool
-class comments(BaseModel):
-    id : str = None
+class likes(BaseModel):
     post_id : str = None
     user_id : str = None
-    comment : str 
-    author  : str = None
-    thread_id : str = None
     created_at : str = None
 #  {
 #     "id": "18082293499389226",

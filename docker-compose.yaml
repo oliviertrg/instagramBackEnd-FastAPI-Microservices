@@ -1,25 +1,40 @@
 version: '3.9'
 
 services:
-  cassandra_likes:
-    image: cassandra:latest
-    hostname: cassandra_likes
-    ports:
-      - "9044:9044"
-    volumes:
-      - .cassandra_likes_services_data/data:/var/lib/cassandra
+  likes_db:
+    image: postgres:latest
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22
+      POSTGRES_DATABASE: likes_db
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: rioverr@in22
+    ports:
+      - "54321:5432"
+    volumes:
+      - .postgres_likes_service_data/postgres_data:/var/lib/postgresql/data
   likes_services:
     image: rioverrain/likes_services:latest
     ports:
       - "7782:7782"
     depends_on:
-      - cassandra_likes
+      - likes_db
 
+  users_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: rioverr@in22
+    ports:
+      - "5432:5432"
+    volumes:
+      - .postgres_users_service_data/postgres_data:/var/lib/postgresql/data
+  users_services :
+    image: rioverrain/users_services:latest
+    ports:
+      - "7777:7777"
+    depends_on:
+      - users_db  
 ########################################################################################
-
+---
   cassandra_follows:
     image: cassandra:latest
     hostname: cassandra_likes
@@ -36,22 +51,8 @@ services:
       - "7781:7781"
     depends_on:
       - cassandra_follows 
----
-  users_db:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: rioverr@in22
-    ports:
-      - "5432:5432"
-    volumes:
-      - .postgres_users_service_data/postgres_data:/var/lib/postgresql/data
-  users_services :
-    image: rioverrain/users_services:latest
-    ports:
-      - "7777:7777"
-    depends_on:
-      - users_db  
+
+
       
 ########################################################################################
 

@@ -1,5 +1,5 @@
 {
-    "cassandraWorkbench.activeClusterName": "Cluster comment",
+    "cassandraWorkbench.activeClusterName": "posts_cluster",
     "cassandraWorkbench.activeKeyspace": [
         [
             "Cluster AllowAllAuthenticator",
@@ -37,6 +37,16 @@
             "database": "postgres",
             "username": "rioverrain",
             "password": "rioverr@in22"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 54321,
+            "driver": "PostgreSQL",
+            "database": "likes_db",
+            "username": "rioverrain",
+            "password": "rioverr@in22",
+            "name": "likes_db"
         }
     ],
     "cassandraWorkbench.splitPosition": 60.031107892143474

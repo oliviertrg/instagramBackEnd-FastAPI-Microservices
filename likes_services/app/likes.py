@@ -3,7 +3,7 @@ from app import auth2,schema
 import requests
 import json
 from datetime import datetime
-from app.config import csd
+from app.config import curso
 import uuid
 import random
 import string
@@ -26,47 +26,67 @@ router = APIRouter (
 @router.get("/{post_id}/views/")
 async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
     try :
-        session = csd()
-        x = (
-            schema.comments(
-            id=str(i[0]),
-            post_id=i[4],
-            author=i[1],
-            comment=i[2],
-            user_id=i[6],
-            created_at=str(i[3]),
-            thread_id=str(i[5])
-        ).dict()
-        for (i) in session.execute(f"""SELECT * from comment.photo_comments WHERE post_id  = '{post_id}';""") 
-            )
+        db = curso()
+        c = db.cursor()
+ 
+        sql = (f'''SELECT * FROM "likes" where "post_id" = '{post_id}' ;''')
+        c.execute(sql)
+        l = c.fetchall()
+        db.close()
+        # x = (
+        #     schema.likes(
+        #     post_id=i[0],
+        #     user_id=i[1],
+        #     created_at=str(i[2]),
+            
+        # ).dict()
+        # for (i) in session.execute(f"""SELECT * FROM post_likes.likes  WHERE post_id  = '{post_id}';""") 
+        #     )
     except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
+         # x = (
+        #     schema.likes(
+        #     post_id=i[0],
+        #     user_id=i[1],
+        #     created_at=str(i[2]),
+            
+        # ).dict()
+        # for (i) in session.execute(f"""SELECT * FROM post_likes.likes  WHERE post_id  = '{post_id}';""") 
+        #     )
+    return {"data":l} 
+
+@router.post("/{post_id}/like/")
+async def test(post_id: str,current_users : int = Depends(auth2.get_current_user)):
+    try:
+        x = schema.likes(      
+        user_id = str(current_users.id),
+        created_at = str(datetime.now()),
+        post_id = post_id     
+        ).dict()   
     
-    return {"data":x} 
-
-@router.post("/{post_id}/add/")
-async def test(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):
-    try:      
-        comments.user_id = 'xxx'
-        comments.author = current_users.id
-        comments.created_at = datetime.now()
-        comments.post_id = post_id
-        comments.id = uuid.uuid4()
-        comments.thread_id = uuid.uuid4()
-        
         session = csd() 
-        x = session.execute(f'''INSERT INTO comment.photo_comments (id,post_id,user_id,comment,author,thread_id,create_at)
-                        VALUES ({comments.id},'{post_id}','{comments.user_id}', '{comments.comment}',
-                        '{comments.author}',{comments.thread_id},'{comments.created_at}') ;
+        # x = session.execute(f"""SELECT count(user_id) FROM post_likes.likes  
+        #                     WHERE post_id = '{post_id}' and user_id = '{current_users.id}' ; """) ;
+        # print(x)
+        # print(x[0][0])
+        # if  x[0][0] == 0 :
+        x = session.execute(f'''INSERT INTO post_likes.likes (post_id,user_id,liked_at)
+                        VALUES ('{post_id }','{current_users.id}','{datetime.now()}') ;
+                                 WHERE user_id NOT IN (
+                                                      SELECT user_id FROM post_likes.likes
+                                                            WHERE post_id = '{post_id}' 
+                                                            )    ;
                                 ''')
-
+        # else :
+        #      return Response(status_code=status.HTTP_403_FORBIDDEN,
+        #                             content={"detail":"Not authorized to perform requested action "})
     except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
-    return comments
+    return x
 
 @router.delete("/{comment_id}/detele/")
 async def test(comment_id: str,current_users : int = Depends(auth2.get_current_user)):
