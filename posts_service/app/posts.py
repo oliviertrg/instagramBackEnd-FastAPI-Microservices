@@ -31,7 +31,12 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
         async with aiohttp.ClientSession() as sessionn:
           async with sessionn.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',
                                  headers=my_headers) as response:
+          
             response_data = await response.json()
+          async with sessionn.get(f'http://host.docker.internal:7782/api/v1/web/likes/{post_id}/views/',
+                                 headers=my_headers) as resp:
+          
+            resp_data = await resp.json()  
             # print(response_data)
         # async with aiohttp.ClientSession() as session:
         #     async with session.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',
@@ -55,6 +60,7 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
         # print(type(response_data.json()))
         x = {"data-1":str(session),"testing":f"done{post_id}"} 
         x.update(response_data)
+        x.update(resp_data)
         # print(x)
         session.shutdown()
 
