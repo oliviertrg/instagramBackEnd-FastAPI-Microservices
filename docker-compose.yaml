@@ -33,6 +33,23 @@ services:
       - "7777:7777"
     depends_on:
       - users_db  
+
+  cassandra_posts:
+    image: cassandra:latest
+    hostname: cassandra_posts
+    ports:
+      - "9043:9043"
+    volumes:
+      - .cassandra_posts_services_data/data:/var/lib/cassandra
+    environment:
+      - USERNAME=rioverrain
+      - PASSWORD=rioverr@in22
+  posts_services:
+    image: rioverrain/posts_services:latest
+    ports:
+      - "7779:7779"
+    depends_on:
+      - cassandra_posts    
 ########################################################################################
 ---
   cassandra_follows:
