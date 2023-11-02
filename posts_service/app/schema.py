@@ -28,16 +28,24 @@ class token(BaseModel) :
 #     is_staff : bool
 
 
-class comments(BaseModel):
-    id : str = None
-    post_id : str = None
+# class comments(BaseModel):
+#     id : str = None
+#     post_id : str = None
+#     user_id : str = None
+#     comment : str 
+#     author  : str = None
+#     thread_id : str = None
+#     created_at : str = None
+
+class posts(BaseModel):
     user_id : str = None
-    comment : str 
-    author  : str = None
-    thread_id : str = None
-    created_at : str = None
-
-
+    posts_id : str = None
+    caption : str = None
+    create_at : str = None
+    imgage_url : str = None
+    likes : dict = None
+    comments : dict = None
+     
 #  {
 #     "id": "18082293499389226",
 #     "from": {

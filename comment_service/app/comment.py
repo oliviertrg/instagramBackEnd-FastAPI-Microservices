@@ -44,7 +44,7 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
     
-    return {"data":x} 
+    return {"total_comments" : f"{type(x)}","comments_data":x} 
 
 @router.post("/{post_id}/add/")
 async def test(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):

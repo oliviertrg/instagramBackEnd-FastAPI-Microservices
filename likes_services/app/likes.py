@@ -40,13 +40,14 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
         ).dict()
         for i in c.fetchall()
             )
+        print(x)
         db.close()
     except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
 
-    return {"like_data":x} 
+    return {"total_likes" : f"{type(x)}","like_data":x} 
 
 @router.post("/{post_id}/like/")
 async def test(post_id: str,current_users : int = Depends(auth2.get_current_user)):

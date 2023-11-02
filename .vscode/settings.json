@@ -16,6 +16,10 @@
         [
             "Test Cluster",
             null
+        ],
+        [
+            "posts_cluster",
+            null
         ]
     ],
     "python.testing.unittestArgs": [
