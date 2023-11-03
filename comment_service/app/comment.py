@@ -7,7 +7,7 @@ from app.config import csd
 import uuid
 import random
 import string
-
+import numpy as np
 
 
 
@@ -39,17 +39,18 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
         ).dict()
         for (i) in session.execute(f"""SELECT * from comment.photo_comments WHERE post_id  = '{post_id}';""") 
             )
+        y = session.execute(f"""SELECT count(id) from comment.photo_comments WHERE post_id  = '{post_id}';""")
     except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
     
-    return {"total_comments" : f"{type(x)}","comments_data":x} 
+    return {"total_comments" : f"{y[0][0]}","comments_data":x} 
 
 @router.post("/{post_id}/add/")
 async def test(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):
     try:      
-        comments.user_id = 'xxx'
+        comments.user_id = current_users.id 
         comments.author = current_users.id
         comments.created_at = datetime.now()
         comments.post_id = post_id

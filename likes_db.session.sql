@@ -7,26 +7,20 @@ CREATE TABLE likes (
 
 SELECT * FROM likes  where post_id = '1234';
 
-SELECT count(*) FROM likes  where post_id = '123';
+SELECT *,ROW_NUMBER() OVER(PARTITION BY post_id) AS row_num  
+FROM likes  where post_id = '123' ORDER BY row_num DESC;
 
-
-INSERT INTO likes(post_id,user_id,liked_at) 
-                   VALUES (
-            '123',
-            '1',
-            '2023-10-30T17:03:33.088500') 
-                   WHERE NOT EXISTS (post_id,user_id,liked_atpost_id,user_id,liked_at);
 
 
 INSERT INTO likes
     (post_id,user_id,liked_at)
-SELECT '1234',
-            '1',
+SELECT '123',
+            '2',
             '2023-10-30T17:03:33.088500'
 WHERE
     NOT EXISTS (
         SELECT user_id FROM likes 
-                   WHERE post_id = '1234'
+                   WHERE post_id = '123'  and user_id = '2' 
     );
 
 

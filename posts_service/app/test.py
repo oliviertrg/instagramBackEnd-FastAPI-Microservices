@@ -40,23 +40,23 @@ import time
 #     await task1
 #     await task2
 
-import asyncio
+# import asyncio
 
-async def x(x):
-    # a = [i for i in range(10)]
-    print("done",x)
-    return await x
+# async def x(x):
+#     # a = [i for i in range(10)]
+#     print("done",x)
+#     return await x
     # return await a
 
-async def y():
-    # a = [i for i in range(10)]
-    print("done")
-    # return await a
-async def main():
+# async def y():
+#     # a = [i for i in range(10)]
+#     print("done")
+#     # return await a
+# async def main():
 
-    task1 = asyncio.run(x(10))
-    task2 = asyncio.create_task(y())
-    print(task1)
+#     task1 = asyncio.run(x(10))
+#     task2 = asyncio.create_task(y())
+#     print(task1)
     # await task1
     # await task2
 
@@ -74,13 +74,26 @@ async def main():
    
 
 
-if __name__ == '__main__':
-    start_time = time.time()
-    asyncio.run(main())
-    # main()
-    end_time = time.time()
-    print(end_time - start_time  )
+# if __name__ == '__main__':
+#     start_time = time.time()
+#     asyncio.run(main())
+#     # main()
+#     end_time = time.time()
+#     print(end_time - start_time  )
+import numpy as np
+# x = list(int(i) for i in range(10000))
+a = (str(i) for i in range(10000))
+print(a)
+print(len(list(a)))
+y = np.array((str(i) for i in range(10000)))
+print(y.size())
+print(y)
 
+# print(len(x))
+# print(x)
+# print(len(x))
+# for i in x :
+#     print(i)
 # # Import the time module
 # import time
 

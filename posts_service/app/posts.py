@@ -45,7 +45,7 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
         i = session.execute(f""" select * from posts.posts where post_id = {post_id};""")
         x = schema.posts(
             user_id=str(i[0][0]),
-            post_id=post_id,
+            posts_id=post_id,
             caption=i[0][2],
             imgage_url = i[0][4],
             create_at=str(i[0][3]),

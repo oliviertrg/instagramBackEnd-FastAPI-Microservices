@@ -1,5 +1,5 @@
 {
-    "cassandraWorkbench.activeClusterName": "posts_cluster",
+    "cassandraWorkbench.activeClusterName": "Cluster comment",
     "cassandraWorkbench.activeKeyspace": [
         [
             "Cluster AllowAllAuthenticator",
@@ -53,5 +53,5 @@
             "name": "likes_db"
         }
     ],
-    "cassandraWorkbench.splitPosition": 60.08799294497318
+    "cassandraWorkbench.splitPosition": 62.69301435102111
 }
