@@ -6,7 +6,9 @@ services:
     environment:
       POSTGRES_DATABASE: follows_db
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: r123
+      POSTGRES_PASSWORD: se/db_password
+    secrets:
+       - db_password      
     ports:
       - "54320:5432"
     volumes:
@@ -22,7 +24,7 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: db_password
+      POSTGRES_PASSWORD: se/db_password
     secrets:
        - db_password
     ports:
@@ -37,7 +39,7 @@ services:
       - users_db   
 secrets:
    db_password:
-     file: db_password.txt         
+     file: se/db_password.txt         
 ---   
 
 
@@ -58,7 +60,7 @@ secrets:
     environment:
       POSTGRES_DATABASE: likes_db
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: db_password
+      POSTGRES_PASSWORD: se/db_password
     secrets:
        - db_password 
     ports:
@@ -76,7 +78,7 @@ secrets:
     image: postgres:latest
     environment:
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: db_password
+      POSTGRES_PASSWORD: se/db_password
     secrets:
        - db_password  
     ports:
@@ -99,7 +101,7 @@ secrets:
       - .cassandra_posts_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/db_password
+      - PASSWORD: se/db_password
     secrets:
        - db_password  
   posts_services:
@@ -118,7 +120,7 @@ secrets:
       - .cassandra_comments_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/db_password.txt
+      - PASSWORD: se/db_password
     secrets:
        - db_password   
   comments_services:
@@ -141,7 +143,7 @@ secrets:
       - .cassandra_follows_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: se/db_password
     secrets:
        - db_password  
   follows_services:
@@ -164,7 +166,7 @@ secrets:
       - .cassandra_comments_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: se/db_password
     secrets:
        - db_password  
   comments_services:
@@ -185,7 +187,7 @@ secrets:
       - .cassandra_posts_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: se/db_password
     secrets:
        - db_password  
   posts_services:
@@ -206,7 +208,7 @@ secrets:
       - .cassandra_likes_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: se/db_password
     secrets:
        - db_password  
   likes_services:
@@ -227,7 +229,7 @@ secrets:
       - .cassandra_follows_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: se/db_password
     secrets:
        - db_password  
   follows_services:
