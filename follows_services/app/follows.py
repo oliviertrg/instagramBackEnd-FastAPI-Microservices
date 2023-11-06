@@ -3,7 +3,7 @@ from app import auth2,schema
 import requests
 import json
 from datetime import datetime
-from app.config import csd
+from app.config import curso
 import uuid
 import random
 import string
@@ -23,22 +23,27 @@ router = APIRouter (
 )
 
 
-@router.get("/{post_id}/views/")
-async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
+@router.get("/{user_id}/views/follwing")
+async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)):
     try :
-        session = csd()
+        db = curso()
+        c = db.cursor()
+ 
+        sql = (f"""SELECT following_id
+               FROM "followers" where 
+               "user_id" = '{user_id}' ;""")
+        c.execute(sql)
+        z = c.fetchall()
+
+
         x = (
-            schema.comments(
-            id=str(i[0]),
-            post_id=i[4],
-            author=i[1],
-            comment=i[2],
-            user_id=i[6],
-            created_at=str(i[3]),
-            thread_id=str(i[5])
-        ).dict()
-        for (i) in session.execute(f"""SELECT * from comment.photo_comments WHERE post_id  = '{post_id}';""") 
-            )
+                schema.followings(
+                following=i[0]
+                
+            ).dict()
+            for i in z
+                )
+        db.close()
     except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
@@ -46,27 +51,63 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
     
     return {"data":x} 
 
-@router.post("/{post_id}/add/")
-async def test(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):
-    try:      
-        comments.user_id = 'xxx'
-        comments.author = current_users.id
-        comments.created_at = datetime.now()
-        comments.post_id = post_id
-        comments.id = uuid.uuid4()
-        comments.thread_id = uuid.uuid4()
-        
-        session = csd() 
-        x = session.execute(f'''INSERT INTO comment.photo_comments (id,post_id,user_id,comment,author,thread_id,create_at)
-                        VALUES ({comments.id},'{post_id}','{comments.user_id}', '{comments.comment}',
-                        '{comments.author}',{comments.thread_id},'{comments.created_at}') ;
-                                ''')
+@router.get("/{user_id}/views/followed")
+async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)):
+    try :
+        db = curso()
+        c = db.cursor()
+ 
+        sql = (f"""SELECT user_id
+               FROM "followers" where 
+               "following_id" = '{user_id}' ;""")
+        c.execute(sql)
+        z = c.fetchall()
+
+
+        x = (
+                schema.followings(
+                followed=i[0]
+                
+            ).dict()
+            for i in z
+                )
+        db.close()
+    except Exception as e:
+         print(f"Error {e}")
+         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                 detail="Not authorized to perform requested action")
+    
+    return {"data":x} 
+
+@router.post("/{user_id}/add/")
+async def test(user_id: str,current_users : int = Depends(auth2.get_current_user)):
+    try:
+        x = schema.followings(      
+        users_id = current_users.id ,
+        following  = user_id,
+        follow_at = str(datetime.now())
+        ).dict()
+        db = curso()
+        c = db.cursor()
+        sql = (f"""INSERT INTO followers
+                                (user_id,following_id,create_at)
+                            SELECT '{current_users.id}','{user_id}','{datetime.now()}'
+                            WHERE NOT EXISTS 
+                                (
+                                    SELECT following_id FROM followers
+                                            WHERE user_id = '{current_users.id}'
+                                             and  following_id = '{user_id}' 
+                                            
+                                ); """ )
+        c.execute(sql)
+        db.commit()
+        db.close()
 
     except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
-    return comments
+    return x
 
 @router.delete("/{comment_id}/detele/")
 async def test(comment_id: str,current_users : int = Depends(auth2.get_current_user)):

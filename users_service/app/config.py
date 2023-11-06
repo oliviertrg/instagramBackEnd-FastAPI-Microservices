@@ -28,5 +28,3 @@ def curso():
 
 if __name__ == "__main__":
          curso()
-
-      

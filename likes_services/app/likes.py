@@ -58,7 +58,7 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
     return {"total_likes" : f"{t}","like_data":x} 
 
 @router.post("/{post_id}/like/")
-async def test(post_id: str,current_users : int = Depends(auth2.get_current_user)):
+async def like_post(post_id: str,current_users : int = Depends(auth2.get_current_user)):
     try:
         x = schema.likes(      
         user_id = str(current_users.id),
@@ -88,7 +88,7 @@ async def test(post_id: str,current_users : int = Depends(auth2.get_current_user
     return x
 
 @router.delete("/{post_id}/detele/")
-async def test(post_id: str,current_users : int = Depends(auth2.get_current_user)):
+async def delete_like(post_id: str,current_users : int = Depends(auth2.get_current_user)):
    try : 
 
     db = curso()

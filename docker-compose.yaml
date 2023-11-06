@@ -1,12 +1,49 @@
 version: '3.9'
 
 services:
+  follows_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DATABASE: follows_db
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: r123
+    ports:
+      - "54320:5432"
+    volumes:
+      - .postgres_follows_service_data/postgres_data:/var/lib/postgresql/data    
+  follows_services:
+    image: rioverrain/follows_services:latest
+    ports:
+      - "7781:7781"
+    depends_on:
+      - follows_db 
+
+  users_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - .postgres_users_service_data/postgres_data:/var/lib/postgresql/data
+  users_services :
+    image: rioverrain/users_services:latest
+    ports:
+      - "7777:7777"
+    depends_on:
+      - users_db      
+---      
   likes_db:
     image: postgres:latest
     environment:
       POSTGRES_DATABASE: likes_db
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: rioverr@in22
+      POSTGRES_PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password 
     ports:
       - "54321:5432"
     volumes:
@@ -22,7 +59,9 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: rioverr@in22
+      POSTGRES_PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
     ports:
       - "5432:5432"
     volumes:
@@ -42,8 +81,10 @@ services:
     volumes:
       - .cassandra_posts_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
   posts_services:
     image: rioverrain/posts_services:latest
     ports:
@@ -59,14 +100,19 @@ services:
     volumes:
       - .cassandra_comments_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22 
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password   
   comments_services:
     image: rioverrain/comments_services:latest
     ports:
       - "7778:7778"
     depends_on:
       - cassandra    
+secrets:
+   db_password:
+     file: db_password.txt      
 ########################################################################################
 ---
   cassandra_follows:
@@ -77,8 +123,10 @@ services:
     volumes:
       - .cassandra_follows_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
   follows_services:
     image: rioverrain/follows_services:latest
     ports:
@@ -98,8 +146,10 @@ services:
     volumes:
       - .cassandra_comments_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22 
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
   comments_services:
     image: rioverrain/comments_services:latest
     ports:
@@ -117,8 +167,10 @@ services:
     volumes:
       - .cassandra_posts_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
   posts_services:
     image: rioverrain/posts_services:latest
     ports:
@@ -136,8 +188,10 @@ services:
     volumes:
       - .cassandra_likes_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
   likes_services:
     image: rioverrain/likes_services:latest
     ports:
@@ -155,8 +209,10 @@ services:
     volumes:
       - .cassandra_follows_services_data/data:/var/lib/cassandra
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=rioverr@in22
+      - USERNAME: rioverrain
+      - PASSWORD: /run/secrets/db_password
+    secrets:
+       - db_password  
   follows_services:
     image: rioverrain/follows_services:latest
     ports:
@@ -172,7 +228,12 @@ services:
       - "7780:7780"    
  
 
+     
 
+
+secrets:
+   db_password:
+     file: db_password.txt
 
 
     # volumes:

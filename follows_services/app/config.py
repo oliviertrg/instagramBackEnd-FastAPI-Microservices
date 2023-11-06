@@ -1,25 +1,32 @@
 # import postgresql
 from datetime import datetime
 # 1. Import the config object from decouple.
-from cassandra.cluster import Cluster
-from cassandra.auth import PlainTextAuthProvider
+import psycopg2cffi
 
-def csd():
+def curso():
  try :
     
-    auth_provider = PlainTextAuthProvider(username='rioverrain', password='rioverr@in22')
-    cluster = Cluster(['instagram-cassandra-1'],port = 9042,
-                      auth_provider=auth_provider)
-    session = cluster.connect('comment') 
+    conn = psycopg2cffi.connect(
+                           database = 'postgres',
+                           user = 'rioverrain',
+                           host = 'host.docker.internal',
+                           port = 54320,
+                           password = 'r123'
+                           
+                        )
+
     print(f"conecting susseccefull")
+    
 
  except Exception as e :
     print("-"*200)
     print("Connecting to database failed")
     print(f"Error {e}" )
- return session    
+
+ return conn
 
 
 if __name__ == "__main__":
-      csd()
+         curso()
+
       

@@ -27,6 +27,13 @@ class token(BaseModel) :
 #     username : str
 #     email : str
 #     is_staff : bool
+
+class followings(BaseModel):
+    users_id : str = None
+    following : str = None
+    followed : str = None
+    follow_at : str = None
+
 class comments(BaseModel):
     id : str = None
     post_id : str = None

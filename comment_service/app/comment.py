@@ -48,7 +48,7 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
     return {"total_comments" : f"{y[0][0]}","comments_data":x} 
 
 @router.post("/{post_id}/add/")
-async def test(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):
+async def comment(post_id: str,comments : schema.comments,current_users : int = Depends(auth2.get_current_user)):
     try:      
         comments.user_id = current_users.id 
         comments.author = current_users.id
@@ -70,7 +70,7 @@ async def test(post_id: str,comments : schema.comments,current_users : int = Dep
     return comments
 
 @router.delete("/{comment_id}/detele/")
-async def test(comment_id: str,current_users : int = Depends(auth2.get_current_user)):
+async def delete_comment(comment_id: str,current_users : int = Depends(auth2.get_current_user)):
    try : 
 
     session = csd() 
