@@ -1,0 +1,1 @@
+{"id":"MXWElzjO9C3mVDLy","clusterName":"Cluster comment","keyspace":null,"body":"-- select * from system_schema.keyspaces; \nSELECT *  from comment.photo_comments ;\n-- bin/nodetool status\n\n","modified":true,"filename":"script_1.cql","source":"action"}
