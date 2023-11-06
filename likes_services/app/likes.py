@@ -93,22 +93,12 @@ async def delete_like(post_id: str,current_users : int = Depends(auth2.get_curre
 
     db = curso()
     c = db.cursor()
-    c.execute(f"""SELECT user_id FROM likes
-                        WHERE post_id = '{post_id}' and user_id = '{current_users.id}'; """)
-    x = c.fetchall()
-    if len(x) != 0:
-           
-        if int(current_users.id) == int(x[0][0]) :
+    c.execute(f"""DELETE FROM likes
+                                WHERE user_id = '{current_users.id}'
+                                and post_id = '{post_id}';""")
+    db.commit()
+    db.close()
 
-            c.execute(f'''DELETE FROM likes
-                            WHERE post_id = '{post_id}' and user_id = '{current_users.id}' ; ''')
-            db.commit()
-            db.close()
-        else :
-            return Response(status_code=status.HTTP_403_FORBIDDEN,
-                                    content={"detail":"Not authorized to perform requested action "})
-    else:
-        return Response(status_code=status.HTTP_404_NOT_FOUND)
  
    except Exception as e:
          print(f"Error {e}")

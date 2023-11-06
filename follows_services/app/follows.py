@@ -29,7 +29,7 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
         db = curso()
         c = db.cursor()
  
-        sql = (f"""SELECT following_id
+        sql = (f"""SELECT following_id,create_at
                FROM "followers" where 
                "user_id" = '{user_id}' ;""")
         c.execute(sql)
@@ -38,7 +38,8 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
 
         x = (
                 schema.followings(
-                following=i[0]
+                following=i[0] ,
+                follow_at = str(i[1])
                 
             ).dict()
             for i in z
@@ -57,7 +58,7 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
         db = curso()
         c = db.cursor()
  
-        sql = (f"""SELECT user_id
+        sql = (f"""SELECT user_id,create_at
                FROM "followers" where 
                "following_id" = '{user_id}' ;""")
         c.execute(sql)
@@ -65,9 +66,9 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
 
 
         x = (
-                schema.followings(
-                followed=i[0]
-                
+                schema.followed(
+                followed=i[0],
+                follow_at = str(i[1])
             ).dict()
             for i in z
                 )
@@ -80,9 +81,9 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
     return {"data":x} 
 
 @router.post("/{user_id}/add/")
-async def test(user_id: str,current_users : int = Depends(auth2.get_current_user)):
+async def follows(user_id: str,current_users : int = Depends(auth2.get_current_user)):
     try:
-        x = schema.followings(      
+        x = schema.follows(      
         users_id = current_users.id ,
         following  = user_id,
         follow_at = str(datetime.now())
@@ -109,25 +110,16 @@ async def test(user_id: str,current_users : int = Depends(auth2.get_current_user
                                  detail="Not authorized to perform requested action")
     return x
 
-@router.delete("/{comment_id}/detele/")
-async def test(comment_id: str,current_users : int = Depends(auth2.get_current_user)):
+@router.delete("/{user_id}/unfollows/")
+async def test(user_id: str,current_users : int = Depends(auth2.get_current_user)):
    try : 
-
-    session = csd() 
-    x = tuple(session.execute(f'''SELECT * FROM comment.photo_comments
-                        WHERE id = {comment_id} ; '''))
-    if len(x) != 0:
-           
-        if int(current_users.id) == int(x[0][1]) :
-
-            session.execute(f'''DELETE FROM comment.photo_comments
-                            WHERE id = {comment_id} ; ''')
-        else :
-
-            return Response(status_code=status.HTTP_403_FORBIDDEN,
-                                    content={"detail":"Not authorized to perform requested action "})
-    else:
-        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    db = curso()
+    c = db.cursor()
+    c.execute(f"""DELETE FROM followers
+                                WHERE user_id = '{current_users.id}'
+                                and following_id = '{user_id}';""")
+    db.commit()
+    db.close()
  
    except Exception as e:
          print(f"Error {e}")

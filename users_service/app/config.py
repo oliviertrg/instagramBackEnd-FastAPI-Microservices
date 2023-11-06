@@ -11,7 +11,7 @@ def curso():
                            user = 'rioverrain',
                            host = 'host.docker.internal',
                            port = 5432,
-                           password = 'rioverr@in22'
+                           password = 'cmlodmVyckBpbjIy'
                            
                         )
 

@@ -85,19 +85,34 @@ async def posting(new_posts : schema.posts,current_users : int = Depends(auth2.g
                                  detail="Not authorized to perform requested action")
     return new_posts
 
-@router.delete("/{comment_id}/detele/")
-async def delete_post(comment_id: str,current_users : int = Depends(auth2.get_current_user)):
+@router.delete("/{post_id}/detele/")
+async def delete_post(post_id: str,current_users : int = Depends(auth2.get_current_user)):
    try : 
 
     session = csd() 
+    x = tuple(session.execute(f'''SELECT * FROM posts.posts 
+                        WHERE post_id = {post_id} ; '''))
+    if len(x) != 0:
+           
+        if int(current_users.id) == int(x[0][0]) :
 
-    session.execute(f'''DELETE FROM comment.photo_comments
-                        WHERE id = {comment_id} ; ''')
+            session.execute(f'''DELETE FROM posts.posts
+                            WHERE post_id = {post_id} ; ''')
+        else :
+
+            return Response(status_code=status.HTTP_403_FORBIDDEN,
+                                    content={"detail":"Not authorized to perform requested action "})
+    else:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+ 
    except Exception as e:
          print(f"Error {e}")
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action") 
     
    return Response(status_code=status.HTTP_204_NO_CONTENT) 
+
+    
+   
 
 

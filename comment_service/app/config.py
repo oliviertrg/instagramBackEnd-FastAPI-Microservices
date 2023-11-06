@@ -7,7 +7,7 @@ from cassandra.auth import PlainTextAuthProvider
 def csd():
  try :
     
-    auth_provider = PlainTextAuthProvider(username='rioverrain', password='rioverr@in22')
+    auth_provider = PlainTextAuthProvider(username='rioverrain', password='cmlodmVyckBpbjIy')
     cluster = Cluster(['instagram-cassandra-1'],port = 9042,
                       auth_provider=auth_provider)
     session = cluster.connect('comment') 

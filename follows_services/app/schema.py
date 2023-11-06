@@ -28,20 +28,22 @@ class token(BaseModel) :
 #     email : str
 #     is_staff : bool
 
-class followings(BaseModel):
+class follows(BaseModel):
     users_id : str = None
     following : str = None
     followed : str = None
     follow_at : str = None
 
-class comments(BaseModel):
-    id : str = None
-    post_id : str = None
-    user_id : str = None
-    comment : str 
-    author  : str = None
-    thread_id : str = None
-    created_at : str = None
+class followings(BaseModel):
+    following : str = None
+    follow_at : str = None    
+
+class followed(BaseModel):
+
+    followed : str = None
+    follow_at : str = None
+
+
 #  {
 #     "id": "18082293499389226",
 #     "from": {

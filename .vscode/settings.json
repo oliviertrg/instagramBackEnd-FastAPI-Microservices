@@ -35,16 +35,6 @@
         {
             "previewLimit": 50,
             "server": "localhost",
-            "port": 5432,
-            "driver": "PostgreSQL",
-            "name": "users_db",
-            "database": "postgres",
-            "username": "rioverrain",
-            "password": "rioverr@in22"
-        },
-        {
-            "previewLimit": 50,
-            "server": "localhost",
             "port": 54321,
             "driver": "PostgreSQL",
             "database": "likes_db",
@@ -61,6 +51,16 @@
             "database": "postgres",
             "username": "rioverrain",
             "password": "r123"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "users_db",
+            "database": "postgres",
+            "username": "rioverrain",
+            "password": "cmlodmVyckBpbjIy"
         }
     ],
     "cassandraWorkbench.splitPosition": 62.69301435102111

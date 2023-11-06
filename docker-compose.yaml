@@ -22,7 +22,7 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: /run/secrets/db_password
+      POSTGRES_PASSWORD: db_password
     secrets:
        - db_password
     ports:
@@ -34,14 +34,31 @@ services:
     ports:
       - "7777:7777"
     depends_on:
-      - users_db      
----      
+      - users_db   
+secrets:
+   db_password:
+     file: db_password.txt         
+---   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   likes_db:
     image: postgres:latest
     environment:
       POSTGRES_DATABASE: likes_db
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: /run/secrets/db_password
+      POSTGRES_PASSWORD: db_password
     secrets:
        - db_password 
     ports:
@@ -59,7 +76,7 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: /run/secrets/db_password
+      POSTGRES_PASSWORD: db_password
     secrets:
        - db_password  
     ports:
@@ -82,7 +99,7 @@ services:
       - .cassandra_posts_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: /run/db_password
     secrets:
        - db_password  
   posts_services:
@@ -101,7 +118,7 @@ services:
       - .cassandra_comments_services_data/data:/var/lib/cassandra
     environment:
       - USERNAME: rioverrain
-      - PASSWORD: /run/secrets/db_password
+      - PASSWORD: /run/db_password.txt
     secrets:
        - db_password   
   comments_services:
