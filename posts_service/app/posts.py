@@ -9,11 +9,11 @@ import random
 import string
 import aiohttp
 import asyncio
+from kafka import KafkaProducer
+ORDER_KAFKA_TOPIC = "UPDATE_NUMBERS_OF_POSTS"
 
-# ORDER_KAFKA_TOPIC = "transactions_details"
-
-# producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9300'],
-#                          api_version=(0,11,5))
+producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9300'],
+                         api_version=(0,11,5))
   
 
 router = APIRouter (
@@ -63,9 +63,17 @@ async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)
                                  detail="Not authorized to perform requested action")
     
     return x
+    
+def post_producer(user_id:int):
+    session = csd()
+    y = session.execute(f"""select count(post_id) from posts.posts where user_id = {user_id} ;""")
+    body = {"total_posts":f"{y[0][0]}","user_id" : f"{user_id}"}
+    print(body)   
+    d = (json.dumps(body).encode("utf-8"))
+    producer.send(ORDER_KAFKA_TOPIC,d)
 
 @router.post("/add/")
-async def posting(new_posts : schema.posts,current_users : int = Depends(auth2.get_current_user)):
+async def posting(new_posts : schema.posts,background_tasks: BackgroundTasks,current_users : int = Depends(auth2.get_current_user)):
     try:      
         new_posts.user_id = current_users.id
         new_posts.posts_id = uuid.uuid4()
@@ -78,6 +86,12 @@ async def posting(new_posts : schema.posts,current_users : int = Depends(auth2.g
                         '{new_posts.caption}', '{new_posts.create_at}',
                         '{new_posts.imgage_url}') ;
                                 """)
+        background_tasks.add_task(post_producer,new_posts.user_id)
+        # y = session.execute(f"""select count(post_id) from posts.posts where user_id = {new_posts.user_id} ;""")
+        # body = {"total_posts":f"{y[0][0]}","user_id" : f"{new_posts.user_id}"}   
+        # d = (json.dumps(body).encode("utf-8"))
+        # producer.send(ORDER_KAFKA_TOPIC,d)
+        
 
     except Exception as e:
          print(f"Error {e}")

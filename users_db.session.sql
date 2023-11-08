@@ -1,7 +1,24 @@
 
 SELECT * from users  ;
--- INSERT INTO users (name, email)
--- VALUES ('John Doe', 'john.doe@example.com')
+
+
+INSERT INTO users (post)
+VALUES (0)
+WHERE EXISTS (
+    SELECT 1
+    FROM users
+    WHERE user_id = 1
+);
+
+UPDATE users
+SET post = 0
+WHERE user_id = 1 ;
+
+INSERT INTO users(user_id,post)
+VALUES (1,'0')  ;
+
+
+
 -- RETURNING id, name, email;
 
 -- delete from users WHERE user_id = 5 ;

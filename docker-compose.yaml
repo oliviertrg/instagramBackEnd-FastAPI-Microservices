@@ -1,24 +1,24 @@
 version: '3.9'
 
 services:
-  follows_db:
-    image: postgres:latest
-    environment:
-      POSTGRES_DATABASE: follows_db
-      POSTGRES_USER: rioverrain
-      POSTGRES_PASSWORD: se/db_password
-    secrets:
-       - db_password      
+  cassandra_posts:
+    image: cassandra:latest
+    hostname: cassandra_posts
     ports:
-      - "54320:5432"
+      - "9043:9043"
     volumes:
-      - .postgres_follows_service_data/postgres_data:/var/lib/postgresql/data    
-  follows_services:
-    image: rioverrain/follows_services:latest
+      - .cassandra_posts_services_data/data:/var/lib/cassandra
+    environment:
+      - USERNAME=rioverrain
+      - PASSWORD=se/db_password
+    secrets:
+       - db_password  
+  posts_services:
+    image: rioverrain/posts_services:latest
     ports:
-      - "7781:7781"
+      - "7779:7779"
     depends_on:
-      - follows_db 
+      - cassandra_posts
 
   users_db:
     image: postgres:latest
@@ -36,24 +36,63 @@ services:
     ports:
       - "7777:7777"
     depends_on:
-      - users_db   
+      - users_db
+  zookeeper:
+    image: 'bitnami/zookeeper:3.7.0'
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=No
+    volumes:
+      - ./bitnami/zookeeper:/bitnami/zookeeper
+
+  kafka:
+    image: 'bitnami/kafka:2.8.0'
+    container_name: kafka
+    ports:
+      - "9300:9300"
+    expose:
+      - "9300"
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CREATE_TOPICS="kafka_capstone_event_bus:1:1"
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9300
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://host.docker.internal:9300
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+      - ALLOW_PLAINTEXT_LISTENER=No
+           
+    depends_on:
+      - zookeeper
+    volumes:
+      - ./bitnami/kafka:/bitnami/kafka       
 secrets:
    db_password:
      file: se/db_password.txt         
+
+
+
 ---   
-
-
-
-
-
-
-
-
-
-
-
-
-
+    follows_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DATABASE: follows_db
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: se/db_password
+    secrets:
+       - db_password      
+    ports:
+      - "54320:5432"
+    volumes:
+      - .postgres_follows_service_data/postgres_data:/var/lib/postgresql/data    
+  follows_services:
+    image: rioverrain/follows_services:latest
+    ports:
+      - "7781:7781"
+    depends_on:
+      - follows_db 
 
   likes_db:
     image: postgres:latest
