@@ -10,12 +10,22 @@ import string
 import aiohttp
 import asyncio
 from kafka import KafkaProducer
-ORDER_KAFKA_TOPIC = "UPDATE_NUMBERS_OF_POSTS"
+KAFKA_TOPIC = "UPDATE_NUMBERS_OF_POSTS"
 
-producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9300'],
-                         api_version=(0,11,5))
-  
+# producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9093'],
+#                          api_version=(0,11,5))
 
+producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9093'],
+                         api_version=(0,11,5),
+                         security_protocol = "SASL_PLAINTEXT",
+                         sasl_mechanisms = "SCRAM-SHA-512",
+                         sasl_username = "my_username",
+                         sasl_password = "my_password")
+
+# "security_protocol": "SASL_PLAINTEXT",
+#     "sasl_mechanisms": "SCRAM-SHA-512",
+#     "sasl_username": "my_username",
+#     "sasl_password": "my_password"
 router = APIRouter (
     prefix = "/api/v1/web/posts",
     tags = ["posts"]
@@ -70,7 +80,7 @@ def post_producer(user_id:int):
     body = {"total_posts":f"{y[0][0]}","user_id" : f"{user_id}"}
     print(body)   
     d = (json.dumps(body).encode("utf-8"))
-    producer.send(ORDER_KAFKA_TOPIC,d)
+    producer.send(KAFKA_TOPIC,d)
 
 @router.post("/add/")
 async def posting(new_posts : schema.posts,background_tasks: BackgroundTasks,current_users : int = Depends(auth2.get_current_user)):

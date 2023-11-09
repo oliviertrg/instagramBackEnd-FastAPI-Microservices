@@ -2,6 +2,15 @@
 SELECT * from users  ;
 
 
+CREATE TABLE tests (
+  id SERIAL PRIMARY KEY,
+  test text
+);
+
+SELECT * from tests ;
+
+drop table test
+
 INSERT INTO users (post)
 VALUES (0)
 WHERE EXISTS (
