@@ -10,6 +10,15 @@ class users(BaseModel):
     is_actice : bool = True
 
 
+class bio_users(BaseModel):
+    username : str
+    email : EmailStr
+    post : int
+    followers : int
+    followings : int
+    create_at : str
+
+
 class login(BaseModel):
     email : EmailStr
     password : str

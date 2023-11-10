@@ -1,0 +1,48 @@
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - kafka-net
+
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_SECURITY_PROTOCOL=SASL_PLAINTEXT
+      - KAFKA_SASL_MECHANISMS=SCRAM-SHA-512
+      - KAFKA_SASL_USERNAME=my_username
+      - KAFKA_SASL_PASSWORD=my_password
+    networks:
+      - kafka-net
+    ports:
+      - "9092:9092"
+
+networks:
+  kafka-net:
+  
+  
+  
+  import json
+
+from confluent_kafka import KafkaProducer
+
+# Create a Kafka producer object with authentication
+producer = KafkaProducer({
+    "bootstrap_servers": ["localhost:9092"],
+    "security_protocol": "SASL_PLAINTEXT",
+    "sasl_mechanisms": "SCRAM-SHA-512",
+    "sasl_username": "my_username",
+    "sasl_password": "my_password"
+})
+
+# Send a message to Kafka
+producer.send("my_topic", key="my_key", value="my_value")
+
+# Flush the producer buffers
+producer.flush()
+
+# Close the producer object
+producer.close()

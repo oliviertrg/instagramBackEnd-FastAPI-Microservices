@@ -1,4 +1,4 @@
-from fastapi import FastAPI ,Response,status ,HTTPException,APIRouter,Depends, Request
+from fastapi import FastAPI ,Response,status ,HTTPException,APIRouter,Depends, Request,BackgroundTasks
 from app import auth2,schema
 import requests
 import json
@@ -7,14 +7,14 @@ from app.config import curso
 import uuid
 import random
 import string
+from kafka import KafkaProducer
 
+KAFKA_TOPIC_FOLLOWING = "UPDATE_NUMBERS_OF_FOLLOWING"
 
+KAFKA_TOPIC_FOLLOWED = "UPDATE_NUMBERS_OF_FOLLOWED"
 
-
-# ORDER_KAFKA_TOPIC = "transactions_details"
-
-# producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9300'],
-#                          api_version=(0,11,5))
+producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9093'],
+                         api_version=(0,11,5))                         
   
 
 router = APIRouter (
@@ -80,8 +80,35 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
     
     return {"data":x} 
 
+async def following_producer(user_id:int):
+    db = curso()
+    c = db.cursor()
+    sql = f"""SELECT count(following_id) FROM followers
+            WHERE user_id = '{user_id}';"""
+    c.execute(sql)
+    y = c.fetchall()
+    body = {"total_following":f"{y[0][0]}","user_id" : f"{user_id}"}
+    db.close()
+    print(body)   
+    d = (json.dumps(body).encode("utf-8"))
+    producer.send(KAFKA_TOPIC_FOLLOWING,d)
+
+async def followed_producer(user_id:int):
+    db = curso()
+    c = db.cursor()
+
+    sql = f"""SELECT count(user_id) FROM followers
+            WHERE following_id = '{user_id}';"""
+    c.execute(sql)
+    y = c.fetchall()
+    body = {"total_followed":f"{y[0][0]}","user_id" : f"{user_id}"}
+    db.close()
+    print(body)   
+    d = (json.dumps(body).encode("utf-8"))
+    producer.send(KAFKA_TOPIC_FOLLOWED,d)    
+
 @router.post("/{user_id}/add/")
-async def follows(user_id: str,current_users : int = Depends(auth2.get_current_user)):
+async def follows(user_id: str,background_tasks: BackgroundTasks,current_users : int = Depends(auth2.get_current_user)):
     try:
         x = schema.follows(      
         users_id = current_users.id ,
@@ -100,6 +127,8 @@ async def follows(user_id: str,current_users : int = Depends(auth2.get_current_u
                                              and  following_id = '{user_id}' 
                                             
                                 ); """ )
+        background_tasks.add_task(following_producer,current_users.id)
+        background_tasks.add_task(followed_producer,user_id)
         c.execute(sql)
         db.commit()
         db.close()
@@ -111,13 +140,15 @@ async def follows(user_id: str,current_users : int = Depends(auth2.get_current_u
     return x
 
 @router.delete("/{user_id}/unfollows/")
-async def test(user_id: str,current_users : int = Depends(auth2.get_current_user)):
+async def test(user_id: str,background_tasks: BackgroundTasks,current_users : int = Depends(auth2.get_current_user)):
    try : 
     db = curso()
     c = db.cursor()
     c.execute(f"""DELETE FROM followers
                                 WHERE user_id = '{current_users.id}'
                                 and following_id = '{user_id}';""")
+    background_tasks.add_task(following_producer,current_users.id)
+    background_tasks.add_task(followed_producer,user_id)
     db.commit()
     db.close()
  

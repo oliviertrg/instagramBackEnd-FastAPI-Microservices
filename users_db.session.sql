@@ -1,6 +1,13 @@
 
-SELECT * from users  ;
-
+SELECT usersname,email,
+post,followers,followings,create_at  
+from users where user_id = 1 ;
+    # username : str
+    # email : EmailStr
+    # post : int
+    # followers : int
+    # followings : int
+    # create_at : str 
 
 CREATE TABLE tests (
   id SERIAL PRIMARY KEY,
@@ -46,3 +53,5 @@ VALUES (1,'0')  ;
 --   RETURN to_json(user);
 -- END;
 -- $$;
+
+post,followers,followings,create_at
