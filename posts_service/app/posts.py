@@ -29,7 +29,36 @@ router = APIRouter (
     prefix = "/api/v1/web/posts",
     tags = ["posts"]
 )
+@router.get("/users/{user_id}/")
+async def viewall(user_id:int,current_users : int = Depends(auth2.get_current_user)):
+    try :
+        a = list()
+        session = csd() 
+        my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
+        for (i) in session.execute(f""" select post_id from posts.posts 
+                        where user_id = {user_id} """) :
+         async with aiohttp.ClientSession() as sessionn:
+          async with sessionn.get(f'http://host.docker.internal:7779/api/v1/web/posts/{i[0]}/views/',
+                                 headers=my_headers) as response:
+          
+            response_data = await response.json()
+            a.append(response_data)
+        # x = (
+        #     i[0] for (i) in session.execute(f""" select post_id from posts.posts 
+        #                 where user_id = {user_id} """) 
+        #     )
+        # print("x = " , x)
+        # i =  session.execute(f""" select post_id from posts.posts 
+        #                 where user_id = {user_id} """)
+        # print(" i = ",i[0])
+        session.shutdown()
 
+    except Exception as e:
+         print(f"Error {e}")
+         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                 detail="Not authorized to perform requested action")
+    
+    return a
 @router.get("/{post_id}/views/")
 async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
     try :

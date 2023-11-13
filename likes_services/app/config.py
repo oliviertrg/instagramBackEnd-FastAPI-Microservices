@@ -3,15 +3,22 @@ from datetime import datetime
 # 1. Import the config object from decouple.
 import psycopg2cffi
 
+import base64
+
+
+
+
 def curso():
  try :
-    
+
+
+   #  print(p) cmlodmVyckBpbjIy,rioverr@in22
     conn = psycopg2cffi.connect(
                            database = 'likes_db',
                            user = 'rioverrain',
                            host = 'host.docker.internal',
                            port = 54321,
-                           password = 'cmlodmVyckBpbjIy'
+                           password =  f"{base64.b64decode('cmlvdmVyckBpbjIy').decode('utf-8')}"
                            
                         )
 

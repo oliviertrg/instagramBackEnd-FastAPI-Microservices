@@ -49,7 +49,7 @@ async def view(user_id:str,current_users : int = Depends(auth2.get_current_user)
          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                  detail="Not authorized to perform requested action")
     
-    return {"bio":x,"post":}
+    return {"bio":x,"post":response_data}
 
 @router.post('/register',status_code=status.HTTP_201_CREATED)
 def register(new_user : users):

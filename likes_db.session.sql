@@ -5,6 +5,7 @@ CREATE TABLE likes (
     liked_at timestamp
 );
 
+
 SELECT * FROM likes  where post_id = '1234';
 
 SELECT *,ROW_NUMBER() OVER(PARTITION BY post_id) AS row_num  
