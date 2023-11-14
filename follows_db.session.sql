@@ -26,3 +26,8 @@ EXISTS (
   WHERE user_id = '3'
   and following_id = 'vic'
 );
+
+UPDATE followers
+set following_id = 3
+
+WHERE id in(9,11,13) ;

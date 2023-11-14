@@ -7,6 +7,8 @@ from app.config import curso
 import uuid
 import random
 import string
+import aiohttp
+import asyncio
 from kafka import KafkaProducer
 
 KAFKA_TOPIC_FOLLOWING = "UPDATE_NUMBERS_OF_FOLLOWING"

@@ -18,6 +18,11 @@ services:
       - "7777:7777"
     depends_on:
       - users_db
+####################################################################################      
+  feeds_services:
+    image: rioverrain/feeds_services:latest
+    ports:
+      - "7780:7780"     
 #############################################################################
   cassandra_posts:
     image: cassandra:latest
@@ -75,9 +80,30 @@ services:
       - "7778:7778"
     depends_on:
       - cassandra_comments
+####################################################################      
+  follows_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DATABASE: follows_db
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: se/db_password
+    secrets:
+       - db_password      
+    ports:
+      - "54320:5432"
+    volumes:
+      - .postgres_follows_service_data/postgres_data:/var/lib/postgresql/data    
+  follows_services:
+    image: rioverrain/follows_services:latest
+    ports:
+      - "7781:7781"
+    depends_on:
+      - follows_db 
+    
 secrets:
    db_password:
-     file: se/db_password.txt              
+     file: se/db_password.txt   
+                
 ---
   zookeeper:
     image: 'bitnami/zookeeper:3.7.0'

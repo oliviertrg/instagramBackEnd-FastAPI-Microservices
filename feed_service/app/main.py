@@ -2,7 +2,7 @@ from fastapi import FastAPI , status ,HTTPException,APIRouter,Depends
 from fastapi.middleware.cors import  CORSMiddleware
 from starlette.requests import Request
 
-from app import posts
+from app import posts,auth2
 import json
 from typing import Optional
 
@@ -13,6 +13,8 @@ from strawberry.http import GraphQLHTTPResponse
 from strawberry.types import Info
 
 from strawberry.fastapi import GraphQLRouter
+import aiohttp
+import asyncio
 app = FastAPI()
 
 def custom_context_dependency() -> str:
@@ -105,14 +107,56 @@ graphql_app = GraphQLRouter(
 
 app.include_router(graphql_app, prefix="/graphql")
 
+async def call_api(url,headerst):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url,headers=headerst) as resp:
+            response = await resp.json()
+            return response
+         
 
 @app.get("/")
-async def test() :
-    b = (1,2,3,4,5)
-    a = (int(i) for i in range(100))
-    return {"testing":b,"testing----":f"{type(b)}","testing":b,"testing----":f"{type(b)}",
-            "testing":"this is posts_server",
-            "testing":"this is posts_server11111111111111111111"}
+async def view_post(current_users : int = Depends(auth2.get_current_user)) :
+    try :
+        
+        url = f"http://host.docker.internal:7781/api/v1/web/follows/{current_users.id}/views/follwing"
+        my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
+
+        async with aiohttp.ClientSession() as session:
+          async with session.get(url,headers=my_headers) as resp:
+            response = await resp.json()
+
+        # x = ( i["following"] for i in response["data"]) 
+
+        b = tuple(
+            asyncio.create_task(call_api(
+                f'http://host.docker.internal:7779/api/v1/web/posts/users/{i["following"]}/'
+                                              ,my_headers
+                                        ))
+
+                for i in response["data"] 
+                        )
+        responses = await asyncio.gather(*b) 
+        print(responses)
+        
+        # b = tuple(
+        #     asyncio.create_task(call_api(
+        #         f'http://host.docker.internal:7779/api/v1/web/posts/users/{user_id}/'
+        #                                       ,my_headers
+        #                                       ))
+
+        #     for (i) in session.execute(f""" select post_id from posts.posts 
+        #                 where user_id = {user_id} """) 
+        # )
+
+        # responses = await asyncio.gather(*b)
+        # session.shutdown()
+
+    except Exception as e:
+         print(f"Error {e}")
+         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                 detail="Not authorized to perform requested action")
+    
+    return responses
 
 # schema = Schema()
 # strawberry = strawberry()
