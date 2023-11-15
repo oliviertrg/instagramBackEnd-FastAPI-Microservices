@@ -31,6 +31,7 @@ async def call_api(url,headerst):
         async with session.get(url,headers=headerst) as resp:
             response = await resp.json()
             return response
+        
 @router.get("/users/{user_id}/")
 async def viewall(user_id:int,current_users : int = Depends(auth2.get_current_user)):
     try :
@@ -39,8 +40,7 @@ async def viewall(user_id:int,current_users : int = Depends(auth2.get_current_us
         b = tuple(
             asyncio.create_task(call_api(
                 f'http://host.docker.internal:7779/api/v1/web/posts/{i[0]}/views/'
-                                              ,my_headers
-                                              ))
+                                              ,my_headers ))
 
             for (i) in session.execute(f""" select post_id from posts.posts 
                         where user_id = {user_id} """) 
@@ -55,6 +55,43 @@ async def viewall(user_id:int,current_users : int = Depends(auth2.get_current_us
                                  detail="Not authorized to perform requested action")
     
     return responses
+
+@router.get("/{post_id}/views/")
+async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
+    try :
+
+        my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}  
+        url = ((f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',my_headers),
+               (f'http://host.docker.internal:7782/api/v1/web/likes/{post_id}/views/',my_headers))    
+
+        b = asyncio.create_task(call_api(url[0][0],url[0][1]))
+        c = asyncio.create_task(call_api(url[1][0],url[1][1]))
+        responses = await asyncio.gather(b,c)
+        
+
+        session = csd() 
+        i = session.execute(f""" select * from posts.posts where post_id = {post_id};""")
+        x = schema.posts(
+            user_id=str(i[0][0]),
+            posts_id=post_id,
+            caption=i[0][2],
+            imgage_url = i[0][4],
+            create_at=str(i[0][3]),
+            likes =  responses[1],
+            comments = responses[0]
+         
+        ).dict()
+        
+
+        session.shutdown()
+
+    except Exception as e:
+         print(f"Error {e}")
+         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                 detail="Not authorized to perform requested action")
+    
+    return x
+
 # @router.get("/users/{user_id}/")
 # async def viewall(user_id:int,current_users : int = Depends(auth2.get_current_user)):
 #     try :
@@ -98,46 +135,46 @@ async def viewall(user_id:int,current_users : int = Depends(auth2.get_current_us
     
 #     return z
 
-@router.get("/{post_id}/views/")
-async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
-    try :
+# @router.get("/{post_id}/views/")
+# async def view(post_id:str,current_users : int = Depends(auth2.get_current_user)):
+#     try :
 
-        my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
+#         my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
 
-        async with aiohttp.ClientSession() as sessionn:
-          async with sessionn.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',
-                                 headers=my_headers) as response:
+#         async with aiohttp.ClientSession() as sessionn:
+#           async with sessionn.get(f'http://host.docker.internal:7778/api/v1/web/comments/{post_id}/views/',
+#                                  headers=my_headers) as response:
           
-            response_data = await response.json()
-          async with sessionn.get(f'http://host.docker.internal:7782/api/v1/web/likes/{post_id}/views/',
-                                 headers=my_headers) as resp:
+#             response_data = await response.json()
+#           async with sessionn.get(f'http://host.docker.internal:7782/api/v1/web/likes/{post_id}/views/',
+#                                  headers=my_headers) as resp:
           
-            resp_data = await resp.json()  
+#             resp_data = await resp.json()  
 
 
 
-        session = csd() 
-        i = session.execute(f""" select * from posts.posts where post_id = {post_id};""")
-        x = schema.posts(
-            user_id=str(i[0][0]),
-            posts_id=post_id,
-            caption=i[0][2],
-            imgage_url = i[0][4],
-            create_at=str(i[0][3]),
-            likes =  resp_data,
-            comments = response_data
+#         session = csd() 
+#         i = session.execute(f""" select * from posts.posts where post_id = {post_id};""")
+#         x = schema.posts(
+#             user_id=str(i[0][0]),
+#             posts_id=post_id,
+#             caption=i[0][2],
+#             imgage_url = i[0][4],
+#             create_at=str(i[0][3]),
+#             likes =  resp_data,
+#             comments = response_data
          
-        ).dict()
+#         ).dict()
         
 
-        session.shutdown()
+#         session.shutdown()
 
-    except Exception as e:
-         print(f"Error {e}")
-         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                                 detail="Not authorized to perform requested action")
+#     except Exception as e:
+#          print(f"Error {e}")
+#          raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+#                                  detail="Not authorized to perform requested action")
     
-    return x
+#     return x
     
 async def post_producer(user_id:int):
     session = csd()

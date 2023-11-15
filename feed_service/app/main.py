@@ -61,12 +61,17 @@ class Query:
     async def test2(self, info: Info) -> str:
         return f"Testing1<DONE> : {info.context['custom_valuess']}"
     
-
+async def call_api(url,headerst):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url,headers=headerst) as resp:
+            response = await resp.json()
+            return response
 @strawberry.type
 class new:
+    
     @strawberry.field
-    async def test(self, info: Info) -> str:
-        return f"Testing<DONE> : {info.context['custom_value']}"
+    async def test1(self, info: Info) -> str:
+        return f"Testing1<DONE> : {info.context['custom_values']}"
     @strawberry.field
     async def test1(self, info: Info) -> str:
         return f"Testing1<DONE> : {info.context['custom_values']}"
@@ -91,7 +96,48 @@ class new:
                 Book(title="The Hitchhiker's Guide to the Galaxy2", author="Douglas Adams", genre="Science fiction2"),
                 Book(title="The Hitchhiker's Guide to the Galaxy3", author="Douglas Adams", genre="Science fiction3")]
         return book
+    @strawberry.field
+    async def book(self) -> List[Book]:
+        book = [Book(title="The Hitchhiker's Guide to the Galaxy1", author="Douglas Adams", genre="Science fiction1"),
+                Book(title="The Hitchhiker's Guide to the Galaxy2", author="Douglas Adams", genre="Science fiction2"),
+                Book(title="The Hitchhiker's Guide to the Galaxy3", author="Douglas Adams", genre="Science fiction3")]
+        return book
+    @strawberry.field
+    async def testX(self, data: str) -> str:
+        j = view_post(data)
+       
+        return  j
 
+def xxx(data : str):
+
+    return x    
+
+async def view_post(current_users : int = Depends(auth2.get_current_user)) :
+     try :
+        
+        url = f"http://host.docker.internal:7781/api/v1/web/follows/{current_users.id}/views/follwing"
+        my_headers =  {'Authorization' : f'Bearer {current_users.access_token}'}
+
+        async with aiohttp.ClientSession() as session:
+          async with session.get(url,headers=my_headers) as resp:
+            response = await resp.json()
+
+        b = tuple(
+            asyncio.create_task(call_api(
+                f'http://host.docker.internal:7779/api/v1/web/posts/users/{i["following"]}/'
+                                              ,my_headers
+                                        ))
+
+                for i in response["data"] 
+                        )
+        responses = await asyncio.gather(*b)
+
+     except Exception as e:
+         print(f"Error {e}")
+         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                 detail="Not authorized to perform requested action")
+     s = [i for i in responses]
+     return s
 
 schema = strawberry.Schema(new)
 # schema2 = strawberry.Schema(new)
@@ -125,8 +171,6 @@ async def view_post(current_users : int = Depends(auth2.get_current_user)) :
           async with session.get(url,headers=my_headers) as resp:
             response = await resp.json()
 
-        # x = ( i["following"] for i in response["data"]) 
-
         b = tuple(
             asyncio.create_task(call_api(
                 f'http://host.docker.internal:7779/api/v1/web/posts/users/{i["following"]}/'
@@ -136,20 +180,6 @@ async def view_post(current_users : int = Depends(auth2.get_current_user)) :
                 for i in response["data"] 
                         )
         responses = await asyncio.gather(*b) 
-        print(responses)
-        
-        # b = tuple(
-        #     asyncio.create_task(call_api(
-        #         f'http://host.docker.internal:7779/api/v1/web/posts/users/{user_id}/'
-        #                                       ,my_headers
-        #                                       ))
-
-        #     for (i) in session.execute(f""" select post_id from posts.posts 
-        #                 where user_id = {user_id} """) 
-        # )
-
-        # responses = await asyncio.gather(*b)
-        # session.shutdown()
 
     except Exception as e:
          print(f"Error {e}")
