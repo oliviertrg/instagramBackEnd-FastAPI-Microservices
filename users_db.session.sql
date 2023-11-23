@@ -14,6 +14,8 @@ CREATE TABLE tests (
   test text
 );
 
+SELECT * from users ;
+
 SELECT * from tests ;
 
 drop table test

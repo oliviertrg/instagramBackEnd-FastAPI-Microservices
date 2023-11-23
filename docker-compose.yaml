@@ -1,5 +1,39 @@
 version: '3.9'
 services:
+  zookeeper:
+    image: 'bitnami/zookeeper:3.6'
+    ports:
+      - '2181:2181'
+    environment:
+      - ZOO_ENABLE_AUTH=yes
+      - ZOO_SERVER_USERS=kafka
+      - ZOO_SERVER_PASSWORDS=123
+      - ZOO_CLIENT_USER=kafka
+      - ZOO_CLIENT_PASSWORD=123
+  kafka:
+    image: 'bitnami/kafka:2.8.1'
+    ports:
+      - '9093:9093'
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=no
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,CLIENT://:9093,
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,CLIENT://host.docker.internal:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:SASL_PLAINTEXT,CLIENT:SASL_PLAINTEXT
+      - KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN
+      #Client credentials
+      - KAFKA_CLIENT_USERS=user_kafka
+      - KAFKA_CLIENT_PASSWORDS=123
+      #Interbroker credentials
+      - KAFKA_INTER_BROKER_USER=kafka
+      - KAFKA_INTER_BROKER_PASSWORD=123
+      #Zookeeper credentials
+      - KAFKA_ZOOKEEPER_PROTOCOL=SASL
+      - KAFKA_ZOOKEEPER_USER=kafka
+      - KAFKA_ZOOKEEPER_PASSWORD=123
+    depends_on:
+      - zookeeper
 
   users_db:
     image: postgres:latest
@@ -18,30 +52,55 @@ services:
       - "7777:7777"
     depends_on:
       - users_db
-####################################################################################      
-  feeds_services:
-    image: rioverrain/feeds_services:latest
-    ports:
-      - "7780:7780"     
+
+      
+  
 #############################################################################
-  cassandra_posts:
-    image: cassandra:latest
-    hostname: cassandra_posts
-    ports:
-      - "9043:9043"
-    volumes:
-      - .cassandra_posts_services_data/data:/var/lib/cassandra
+  # cassandra_posts:
+  #   image: cassandra:latest
+  #   hostname: cassandra_posts
+  #   ports:
+  #     - "9043:9043"
+  #   volumes:
+  #     - .cassandra_posts_services_data/data:/var/lib/cassandra
+  #   environment:
+  #     - USERNAME=rioverrain
+  #     - PASSWORD=se/db_password
+  #   secrets:
+  #      - db_password  
+  # posts_services:
+  #   image: rioverrain/posts_services:latest
+  #   ports:
+  #     - "7779:7779"
+  #   depends_on:
+  #     - cassandra_posts 
+  likes_db:
+    image: postgres:latest
     environment:
-      - USERNAME=rioverrain
-      - PASSWORD=se/db_password
+      POSTGRES_DATABASE: likes_db
+      POSTGRES_USER: rioverrain
+      POSTGRES_PASSWORD: se/db_password
     secrets:
-       - db_password  
-  posts_services:
-    image: rioverrain/posts_services:latest
+       - db_password 
     ports:
-      - "7779:7779"
+      - "54321:5432"
+    volumes:
+      - .postgres_likes_service_data/postgres_data:/var/lib/postgresql/data
+  likes_services:
+    image: rioverrain/likes_services:latest
+    ports:
+      - "7782:7782"
     depends_on:
-      - cassandra_posts 
+      - likes_db
+
+secrets:
+   db_password:
+     file: se/db_password.txt 
+     
+      
+---
+
+
 ######################################################################
   likes_db:
     image: postgres:latest
@@ -130,6 +189,7 @@ secrets:
       - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://host.docker.internal:9093
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
       - ALLOW_PLAINTEXT_LISTENER=yes
+      
            
     depends_on:
       - zookeeper
