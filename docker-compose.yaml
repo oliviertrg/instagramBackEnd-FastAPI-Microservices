@@ -22,6 +22,8 @@ services:
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:SASL_PLAINTEXT,CLIENT:SASL_PLAINTEXT
       - KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN
+      - KAFKA_CFG_SASL_ENABLED_MECHANISMS=SCRAM-SHA-512
+      - KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=SCRAM-SHA-512
       #Client credentials
       - KAFKA_CLIENT_USERS=user_kafka
       - KAFKA_CLIENT_PASSWORDS=123
@@ -48,6 +50,7 @@ services:
       - .postgres_users_service_data/postgres_data:/var/lib/postgresql/data
   users_services :
     image: rioverrain/users_services:latest
+    # command: "sh -c 'cd app && python consumer_post.py && python consumer_following.py && python consumer_followed.py '"
     ports:
       - "7777:7777"
     depends_on:
@@ -55,25 +58,30 @@ services:
 
       
   
-#############################################################################
-  # cassandra_posts:
-  #   image: cassandra:latest
-  #   hostname: cassandra_posts
-  #   ports:
-  #     - "9043:9043"
-  #   volumes:
-  #     - .cassandra_posts_services_data/data:/var/lib/cassandra
-  #   environment:
-  #     - USERNAME=rioverrain
-  #     - PASSWORD=se/db_password
-  #   secrets:
-  #      - db_password  
-  # posts_services:
-  #   image: rioverrain/posts_services:latest
-  #   ports:
-  #     - "7779:7779"
-  #   depends_on:
-  #     - cassandra_posts 
+############################################################################
+  cassandra_posts:
+    image: cassandra:latest
+    hostname: cassandra_posts
+    ports:
+      - "9043:9043"
+    volumes:
+      - .cassandra_posts_services_data/data:/var/lib/cassandra
+    environment:
+      - USERNAME=rioverrain
+      - PASSWORD=se/db_password
+    secrets:
+       - db_password  
+  posts_services:
+    image: rioverrain/posts_services:latest
+    ports:
+      - "7779:7779"
+    depends_on:
+      - cassandra_posts 
+
+secrets:
+   db_password:
+     file: se/db_password.txt 
+---      
   likes_db:
     image: postgres:latest
     environment:
@@ -92,13 +100,6 @@ services:
       - "7782:7782"
     depends_on:
       - likes_db
-
-secrets:
-   db_password:
-     file: se/db_password.txt 
-     
-      
----
 
 
 ######################################################################

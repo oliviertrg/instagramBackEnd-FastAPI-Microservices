@@ -11,11 +11,11 @@ from kafka import KafkaProducer
 KAFKA_TOPIC = "UPDATE_NUMBERS_OF_POSTS"
 
 producer = KafkaProducer(bootstrap_servers=['host.docker.internal:9093'],
-                         api_version=(0,11,5))
-                        #  security_protocol = "SASL_PLAINTEXT",
-                        #  sasl_mechanisms = "SCRAM-SHA-512",
-                        #  sasl_username = "my_username",
-                        #  sasl_password = "my_password")
+                         api_version=(0,11,5),
+                         security_protocol = "SASL_PLAINTEXT",
+                         sasl_mechanism = "SCRAM-SHA-512",
+                         sasl_plain_username="user_kafka",
+                         sasl_plain_password="123")
 
 # "security_protocol": "SASL_PLAINTEXT",
 #     "sasl_mechanisms": "SCRAM-SHA-512",

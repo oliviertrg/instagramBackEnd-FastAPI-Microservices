@@ -9,8 +9,11 @@ CONFIRMED_KAFKA_TOPIC = "UPDATE_NUMBERS_OF_FOLLOWED [confirmed] "
 consumer = KafkaConsumer(
                         KAFKA_TOPIC,
                         bootstrap_servers=['host.docker.internal:9093'],
-                        api_version=(0,11,5)
-                        )
+                         api_version=(0,11,5),
+                         security_protocol = "SASL_PLAINTEXT",
+                         sasl_mechanism = "SCRAM-SHA-512",
+                         sasl_plain_username="user_kafka",
+                         sasl_plain_password="123")
 
 def kafka_queue():
   print("sending ","="*200,">>>>>>>>>>>>>>>>>>>>>>")
